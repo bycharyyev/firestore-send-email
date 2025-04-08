@@ -91,6 +91,6 @@ params:
   - param: TTL_EXPIRE_VALUE
     label: Firestore TTL value
     description: In the units specified by TTL_EXPIRE_TYPE, how long do you want records to be ineligible for deletion by a TTL policy?
-    type: number
+    type: string
     required: false
-    default: 1 
+    default: "1" 
