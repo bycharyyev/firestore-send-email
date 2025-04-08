@@ -1,0 +1,96 @@
+name: firestore-send-email
+version: 0.1.0
+specVersion: v1beta
+
+displayName: Trigger Email from Firestore
+description: Composes and sends an email based on the contents of a document written to a specified Cloud Firestore collection.
+
+author:
+  authorName: Firebase
+  url: https://firebase.google.com
+
+license: Apache-2.0
+
+roles:
+  - role: datastore.user
+    reason: Allows this extension to access Cloud Firestore to read and process added email documents.
+
+resources:
+  - name: processQueue
+    type: firebaseextensions.v1beta.function
+    description: Processes document changes in the specified Cloud Firestore collection, delivers emails, and updates the document with delivery status information.
+    properties:
+      runtime: nodejs18
+      location: ${LOCATION}
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.create
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_PATH}/{documentId}
+      codebase: processQueue
+
+params:
+  - param: SMTP_CONNECTION_URI
+    label: SMTP connection URI
+    description: A URI representing an SMTP server this extension can use to deliver email.
+    type: string
+    required: true
+
+  - param: SMTP_PASSWORD
+    label: SMTP password
+    description: User password for the SMTP server
+    type: string
+    required: true
+    secret: true
+
+  - param: COLLECTION_PATH
+    label: Email documents collection
+    description: What is the path to the collection that contains the documents used to build and send the emails?
+    type: string
+    required: true
+    default: mail
+
+  - param: DEFAULT_FROM
+    label: Default FROM address
+    description: The email address to use as the sender's address (if it's not specified in the added email document).
+    type: string
+    required: false
+
+  - param: DEFAULT_REPLY_TO
+    label: Default REPLY-TO address
+    description: The email address to use as the reply-to address (if it's not specified in the added email document).
+    type: string
+    required: false
+
+  - param: USERS_COLLECTION
+    label: Users collection
+    description: A collection of documents keyed by user UID.
+    type: string
+    required: false
+
+  - param: TEMPLATES_COLLECTION
+    label: Templates collection
+    description: A collection of email templates keyed by name.
+    type: string
+    required: false
+
+  - param: TTL_EXPIRE_TYPE
+    label: Firestore TTL type
+    description: Do you want the firestore records to be marked with an expireAt field for a TTL policy?
+    type: select
+    options:
+      - label: Never
+        value: never
+      - label: Hours
+        value: hours
+      - label: Days
+        value: days
+      - label: Weeks
+        value: weeks
+    default: never
+    required: true
+
+  - param: TTL_EXPIRE_VALUE
+    label: Firestore TTL value
+    description: In the units specified by TTL_EXPIRE_TYPE, how long do you want records to be ineligible for deletion by a TTL policy?
+    type: number
+    required: false
+    default: 1 
