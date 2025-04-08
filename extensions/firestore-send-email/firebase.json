@@ -1,0 +1,10 @@
+{
+  "extensions": {
+    "firestore-send-email": {
+      "source": ".",
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  }
+} 
